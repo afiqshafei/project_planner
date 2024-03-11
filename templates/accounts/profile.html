@@ -1,0 +1,15 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail">
+            <h2>{{ user.get_full_name }}</h2>
+            <p>{{ user.email }}</p>
+            <a href="{% url 'update_profile' %}" class="btn btn-primary">Edit Profile</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
