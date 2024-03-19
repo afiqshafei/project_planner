@@ -17,7 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import DashboardView, ProfileView, UpdateProfileView
+from .views import DashboardView, ProfileView, UpdateProfileView, ProjectCreateView
+from calendarapp.views import other_views
+
 
 
 
@@ -28,7 +30,10 @@ urlpatterns = [
     path("", include("calendarapp.urls")),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('profile/update/', UpdateProfileView.as_view(), name='update_profile'),
-    # path('projects/create/', views.create_project_view, name='create_project'),
+    path('new_project/', ProjectCreateView.as_view(), name='new_project'),
+    path('add_project/', other_views.add_project, name='add_project'),
+    path('add_project/add_task', other_views.add_task, name="add_task"),    
+    # path()
 ]
 
 
