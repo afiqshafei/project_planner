@@ -1,0 +1,35 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <h2>Create New Project</h2>
+        <form method="post">
+          {% csrf_token %}
+          {{ project_form.as_p }}
+          {{ task_formset.management_form }}
+          {% for form in task_formset %}
+            {{ form.as_p }}
+          {% endfor %}
+              <button type="submit" class="btn btn-success">Save changes</button>
+          </form>
+      </div>
+  </div>
+</div>
+
+
+
+
+  <!-- <h2>Create New Project</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ project_form.as_p }}
+    {{ task_formset.management_form }}
+    {% for form in task_formset %}
+      {{ form.as_p }}
+    {% endfor %}
+    <button type="submit">Save Project</button>
+  </form> -->
+{% endblock %}

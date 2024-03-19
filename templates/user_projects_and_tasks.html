@@ -1,0 +1,18 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+  <h2>My Projects and Tasks</h2>
+  
+  {% for project in user_projects %}
+    <h3>{{ project.title }}</h3>
+    <ul>
+      {% for task in project.tasks.all %}
+        <li>{{ task.name }}</li>
+      {% empty %}
+        <li>No tasks for this project.</li>
+      {% endfor %}
+    </ul>
+  {% empty %}
+    <p>You have no projects.</p>
+  {% endfor %}
+{% endblock %}

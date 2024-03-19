@@ -1,0 +1,38 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %} Project Planner | Add task {% endblock title %}
+
+{% block breadcrumb %}
+    <h2>Add Task</h2>
+{% endblock breadcrumb %}
+
+{% block content %}
+
+<form method="post" action="{% url 'add_task' %}">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="id_project" class="form-label">Project:</label>
+        {{ form.project }}
+    </div>
+    <div class="mb-3">
+        <label for="id_name" class="form-label">Name:</label>
+        {{ form.name }}
+    </div>
+    <div class="mb-3">
+        <label for="id_duration" class="form-label">Duration:</label>
+        {{ form.duration }}
+    </div>
+    <div class="mb-3 form-check">
+        {{ form.is_actionable }}
+        <label for="id_is_actionable" class="form-check-label">Is actionable</label>
+    </div>
+    <div class="mb-3 form-check">
+        {{ form.email_notification }}
+        <label for="id_email_notification" class="form-check-label">Email notification</label>
+    </div>
+    <button type="submit" name="submit" value="save" class="btn btn-primary">SAVE</button>
+    <button type="submit" name="submit" value="save_add_another" class="btn btn-secondary">Save and add another</button>
+    <button type="submit" name="submit" value="save_continue" class="btn btn-secondary">Save and continue editing</button>
+</form>
+{% endblock %}

@@ -5,12 +5,13 @@
 
 {% block breadcrumb %}
     <div>
-        <h1><i class="fa fa-dashboard"></i> Dashboard</h1>
-        <p>Event List</p>
+        <h1><i class=""></i> Dashboard</h1>
+        <!-- <h1><i class="fa fa-dashboard"></i> Dashboard</h1> -->
+        <p>Tasks List</p>
     </div>
     <ul class="app-breadcrumb breadcrumb">
-        <li class="breadcrumb-item"><i class="fa fa-home fa-lg"></i></li>
-        <li class="breadcrumb-item"><a href="#">Event List</a></li>
+        <!-- <li class="breadcrumb-item"><i class="fa fa-home fa-lg"></i></li> -->
+        <!-- <li class="breadcrumb-item"><a href="#">Event List</a></li> -->
     </ul>
 {% endblock breadcrumb %}
 
@@ -33,14 +34,22 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for event in object_list %}
+                                        <!-- {% for event in object_list %}
                                             <tr role="row" class="odd">
                                                 <td class="sorting_1">{{ forloop.counter }}</td>
                                                 <td>{{ event.title }}</td>
                                                 <td>{{ event.start_time }}</td>
                                                 <td>{{ event.end_time }}</td>
                                             </tr>
-                                        {% endfor %}
+                                        {% endfor %} -->
+                                        {% for pro in project %}
+                                        <tr role="row" class="odd">
+                                            <td class="sorting_1">{{ forloop.counter }}</td>
+                                            <td>{{ pro.id }}</td>
+                                            <td>{{ pro.title }}</td>
+                                            <!-- <td>{{ event.end_time }}</td> -->
+                                        </tr>
+                                    {% endfor %}
                                     </tbody>
                                 </table>
                             </div>

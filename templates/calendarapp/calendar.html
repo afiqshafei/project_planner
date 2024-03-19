@@ -8,15 +8,20 @@
 
 {% block breadcrumb %}
   <div>
-      <h1><i class="fa fa-calendar"></i> Calendar</h1>
+      <h1><i class=""></i> Calendar</h1>
       <p>Project Planner's Calendar</p>
   </div>
   <ul class="app-breadcrumb breadcrumb">
     
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectModal">
+      <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#projectModal">
+        Projects
+        </button>  -->
+    
+    
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newProjectModal">
     + New Project
-    </button>          
-      <!-- <li class="breadcrumb-item"><a href="#">Calendar</a></li> -->
+    </button> 
+           
   </ul>
 
         
@@ -45,6 +50,38 @@
             <div class="col-md-9">
                 <div id="calendar"></div>
             </div>
+
+            <!-- Modal For New Project button-->
+<div class="modal fade" id="newProjectModal" tabindex="-1" aria-labelledby="newProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header bg-primary">       
+            <h5 class="modal-title text-white" id="newProjectModalLabel">New Project</h5>           
+          <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="newProjectForm" method="post" action="{% url 'add_project' %}">
+          <!-- <form method="post"> -->
+          <div class="modal-body"> 
+            <!-- Project Name -->
+            <div class="mb-3">
+              <label for="projectName" class="form-label">Project Name</label>              
+              {% csrf_token %}
+              <!-- <input type="text" class="form-control" id="projectName" name="project_name" required> -->
+              {{ form.title }}              
+            </div>           
+            <div class="mb-3">
+                <label for="startDate" class="form-label">Project's Date</label>
+                {{ form.start_date }}
+                {% csrf_token %}
+                <input type="date" class="form-control" id="startDate" name="start_date" required>
+              </div>          
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>            
+            <button type="submit" class="btn btn-primary">Save Project</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div> 
 
             <div class="modal fade show" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
@@ -164,8 +201,8 @@
           document.getElementById('id_start_time').value = converterDataParaDjangoFormat(arg.start);
           document.getElementById('id_end_time').value = converterDataParaDjangoFormat(arg.end);
           calendar.unselect()
-        },
-                             
+        },   
+                     
         
         
         // http://fullcalendar.io/docs/google_calendar/
@@ -306,43 +343,28 @@ function getCookie(name) {
   }
   return cookieValue;
 }
-// // just added for the modal
-// document.addEventListener('DOMContentLoaded', function() {
-//   var newProjectForm = document.getElementById('newProjectForm');
-//   newProjectForm.addEventListener('submit', function(event) {
-//     event.preventDefault();
+function setupNewProjectModal() {
+    // Clear existing values
+    document.getElementById('id_title').value = '';
+    document.getElementById('id_description').value = '';
+    // Set the start and end times to default values, such as the current date and time
+    var now = new Date();
+    var oneHourLater = new Date(now.getTime() + 60 * 60 * 1000); // Default duration of 1 hour
+    document.getElementById('id_start_time').value = converterDataParaDjangoFormat(now);
+    document.getElementById('id_end_time').value = converterDataParaDjangoFormat(oneHourLater);
+}
 
-//     // Gather the data from the form
-//     var formData = new FormData(newProjectForm);
+// Attach an event listener to your 'New Project' button
+document.querySelector("[data-bs-target='#newProjectModal']").addEventListener('click', setupNewProjectModal);
 
-//     // Include logic here to handle the "use existing template" choice
-//     // This could involve disabling/enabling form fields, etc.
-
-//     // Send the form data to your Django backend
-//     fetch('/path/to/your/view/', {
-//       method: 'POST',
-//       body: formData,
-//       headers: {
-//         'X-CSRFToken': getCookie('csrftoken'),  // Ensure you're getting the CSRF token
-//       },
-//     })
-//     .then(response => {
-//       if (!response.ok) {
-//         throw new Error('Network response was not ok');
-//       }
-//       return response.json();
-//     })
-//     .then(data => {
-//       // Here, you could update the calendar with the new project data
-//       console.log(data);
-//       // Close the modal upon success
-//       $('#newProjectModal').modal('hide');
-//     })
-//     .catch(error => {
-//       console.error('There has been a problem with your fetch operation:', error);
-//     });
-//   });
-// });
+document.getElementById('modalClose0').addEventListener('click', function() {
+    var myModalEl = document.getElementById('newProjectModal');
+    var modalInstance = bootstrap.Modal.getInstance(myModalEl);
+    modalInstance.hide();
+  
+  
+  $('#newProjectModal').modal('hide');
+});
 
 </script>
 {% endblock extrascripts %}
