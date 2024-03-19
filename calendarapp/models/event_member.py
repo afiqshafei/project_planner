@@ -17,3 +17,12 @@ class EventMember(EventAbstract):
 
     def __str__(self):
         return str(self.user)
+
+
+# class Project(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     title = models.CharField(max_length=255)
+#     start_date = models.DateField()
+#     end_date = models.DateField()
+    
+

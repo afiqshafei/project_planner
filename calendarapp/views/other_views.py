@@ -1,7 +1,6 @@
-# cal/views.py
-
+from django.views.generic.edit import CreateView
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.views import generic
 from django.utils.safestring import mark_safe
 from datetime import timedelta, datetime, date
@@ -10,11 +9,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
+from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404
-
 from calendarapp.models import EventMember, Event
 from calendarapp.utils import Calendar
 from calendarapp.forms import EventForm, AddMemberForm
+from calendarapp.models.project import Project, Task
+from calendarapp.forms import ProjectForm, TaskForm
 
 
 def get_date(req_day):
@@ -73,6 +74,96 @@ def create_event(request):
         return HttpResponseRedirect(reverse("calendarapp:calendar"))
     return render(request, "event.html", {"form": form})
 
+
+def add_project(request):
+    form = ProjectForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+         title = form.cleaned_data["title"]       
+         start_date = form.cleaned_data["start_date"]     
+         Project.objects.get_or_create(
+             user = request.user,
+             title=title,            
+            start_date=start_date,
+         )
+         return redirect('add_task')
+        #  return HttpResponseRedirect(reverse("calendarapp:calendar"))           
+          
+    
+    return render(request, "event.html", {"form": form})
+
+@login_required
+def list_user_projects_and_tasks(request):
+    # Fetch all projects for the user with prefetch_related for efficiency
+    user_projects = Project.objects.filter(user=request.user).prefetch_related('tasks')
+
+    return render(request, 'user_projects_and_tasks.html', {'user_projects': user_projects})
+    
+
+# def add_task(request):
+#     form = TaskForm(request.POST or None)
+#     if request.method == "POST" and form.is_valid():
+#          title = form.cleaned_data["title"]
+#         #  name = form.cleaned_data["name"]
+#          start_date = form.cleaned_data["start_date"]
+
+#          Task.objects.get_or_create(
+#              user = request.user,
+#              title=title,            
+#             start_date=start_date,
+#          )
+#          return HttpResponseRedirect(reverse("calendarapp:calendar"))      
+#         #  return HttpResponseRedirect("reverse("add_task")")    
+    
+#     return render(request, "event.html", {"form": form})
+
+@login_required
+def add_task(request):
+    form = TaskForm(request.POST or None, user=request.user)
+    if request.method == 'POST' and form.is_valid():
+        project = form.cleaned_data["project"]
+        name = form.cleaned_data["name"]
+        duration = form.cleaned_data["duration"]
+        is_actionable = form.cleaned_data["is_actionable"]
+        email_notification = form.cleaned_data["email_notification"]
+
+        Task.objects.get_or_create(
+            project=project,
+            name=name,
+            duration=duration,
+            is_actionable=is_actionable,
+            email_notification=email_notification,
+        )
+        if 'save_add_another' in request.POST:
+                return redirect('add_task')  # Redirects to the same page for a new form
+        elif 'save_continue' in request.POST:
+            return HttpResponseRedirect(reverse("calendarapp:calendar"))
+            # return redirect('edit_task_url_name', pk=task.pk)  # Redirect to the edit page of the newly created task
+        else:
+            # return redirect('task_list_url_name')
+            return HttpResponseRedirect(reverse("calendarapp:calendar"))
+
+        return HttpResponseRedirect(reverse("calendarapp:calendar"))  
+    return render(request, "add_task.html", {"form": form})
+
+
+
+
+
+
+        
+
+
+# def add_project(request):
+#     if request.method == 'POST':
+#         form = ProjectForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect("calendarapp/calendar.html")
+
+#     else:
+#         form = ProjectForm()
+
+#     return render(request, "calendarapp/calendar.html", {'form':form} )
 
 class EventEdit(generic.UpdateView):
     model = Event
@@ -179,3 +270,44 @@ def next_day(request, event_id):
         return JsonResponse({'message': 'Sucess!'})
     else:
         return JsonResponse({'message': 'Error!'}, status=400)
+
+
+# class ProjectCreateView(CreateView):
+#     model = Project
+#     form_class = ProjectForm
+#     template_name = 'create_new_project.html'
+#     success_url = reverse_lazy('calendar')
+
+#     def get_context_data(self, **kwargs):
+#         context = super(ProjectCreateView, self).get_context_data(**kwargs)
+#         if self.request.POST:
+#             context['task_formset'] = TaskFormSet(self.request.POST)
+#         else:
+#             context['task_formset'] = TaskFormSet()
+#         return context
+
+#     def form_valid(self, form):
+#         context = self.get_context_data()
+#         task_formset = context['task_formset']
+#         if task_formset.is_valid():
+#             self.object = form.save(commit=False)
+#             self.object.user = self.request.user
+#             self.object.save()
+#             task_formset.instance = self.object
+#             tasks = task_formset.save(commit=False)
+            
+#             # Logic to handle email notifications...
+            
+#             for task in tasks:
+#                 task.save()
+            
+#             # Add logic here if you need to perform additional steps after saving the project
+#             return HttpResponseRedirect(self.get_success_url())
+#         else:
+#             return super(ProjectCreateView, self).form_invalid(form)
+
+#     def get_success_url(self):
+#         # Here you can add logic to determine the success URL dynamically
+#         return reverse_lazy('project_detail', kwargs={'pk': self.object.pk})
+
+# TaskFormSet = inlineformset_factory(Project, Task, form=TaskForm, extra=1, can_delete=True)

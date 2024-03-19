@@ -28,5 +28,6 @@ urlpatterns = [
         views.RunningEventsListView.as_view(),
         name="running_events",
     ),
+    # path('new_project/',views.ProjectCreateView.as_view() , name='new_project'),
    
 ]
