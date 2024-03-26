@@ -53,7 +53,7 @@ class AddMemberForm(forms.ModelForm):
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['title', 'start_date', 'template']
+        fields = ['title', 'start_date', 'template', 'save_as_template']
         # fields = ['title', 'start_date']       
         # newly added
         widgets = {
@@ -70,6 +70,9 @@ class ProjectForm(forms.ModelForm):
             # newly added for the template
             "template": forms.Select(
                 attrs={"class":"form-control"}
+            ),
+            "save_as_template": forms.CheckboxInput(
+                attrs={"class": 'form-check-input'}
             ),
 
             # "start_date": DateInput(

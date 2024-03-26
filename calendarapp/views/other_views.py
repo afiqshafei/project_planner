@@ -5,6 +5,7 @@ from django.views import generic
 from django.utils.safestring import mark_safe
 from datetime import timedelta, datetime, date
 import calendar
+import json
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
@@ -14,7 +15,7 @@ from django.shortcuts import get_object_or_404
 from calendarapp.models import EventMember, Event
 from calendarapp.utils import Calendar
 from calendarapp.forms import EventForm, AddMemberForm
-from calendarapp.models.project import Project, Task
+from calendarapp.models.project import Project, Task, ProjectTemplate, TaskTemplate
 from calendarapp.forms import ProjectForm, TaskForm
 
 
@@ -74,29 +75,124 @@ def create_event(request):
         return HttpResponseRedirect(reverse("calendarapp:calendar"))
     return render(request, "event.html", {"form": form})
 
+# mod for the template but not working
+# def add_project(request):
+#     form = ProjectForm(request.POST or None, user=request.user)
+#     if request.method == "POST" and form.is_valid():
+#         project = form.save(commit=False)
+#         project.user = request.user
+#         project.save()
+#         template = form.cleaned_data.get('template')
+#         if template:
+#             # Copy tasks from the template
+#             for task_template in template.task_templates.all():
+#                 Task.objects.create(
+#                     project=project,
+#                     name=task_template.name,
+#                     days_prior=task_template.days_prior,
+#                     duration=task_template.duration
+#                 )
+#         return redirect('project_detail', pk=project.pk)
+
+#     return render(request, "add_project.html", {"form": form})
 
 def add_project(request):
     form = ProjectForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
          title = form.cleaned_data["title"]       
-         start_date = form.cleaned_data["start_date"]     
+         start_date = form.cleaned_data["start_date"]   
+         save_as_template = form.cleaned_data["save_as_template"]  
          Project.objects.get_or_create(
              user = request.user,
              title=title,            
             start_date=start_date,
+            save_as_template = save_as_template,
          )
+         
          return redirect('add_task')
+    
+
+def template_list(request):
+    templates = Project.objects.filter(is_template=True)
+    return render(request, 'project/template_list.html', {'templates': templates})
+
+def create_project_from_template(request, template_id):
+    template = get_object_or_404(Project, pk=template_id, is_template=True)
+    new_project = Project.objects.create(
+        title=template.title,
+        description=template.description,
+        start_date=template.start_date,
+        end_date=template.end_date,
+        is_template=False
+    )
+    # Duplicate related tasks if any
+    for task in template.task_set.all():
+        Task.objects.create(
+            project=new_project,
+            title=task.title,
+            description=task.description,
+            start_date=task.start_date,
+            end_date=task.end_date
+        )
+    return redirect('edit_project', new_project.id)
+
+
+
+# def add_project(request):
+#     form = ProjectForm(request.POST or None)
+#     if request.method == "POST" and form.is_valid():
+#          title = form.cleaned_data["title"]       
+#          start_date = form.cleaned_data["start_date"]     
+#          Project.objects.get_or_create(
+#              user = request.user,
+#              title=title,            
+#             start_date=start_date,
+#          )
+#          return redirect('add_task')
         #  return HttpResponseRedirect(reverse("calendarapp:calendar"))           
           
     
     return render(request, "event.html", {"form": form})
 
 @login_required
-def list_user_projects_and_tasks(request):
-    # Fetch all projects for the user with prefetch_related for efficiency
+def list_user_projects_and_tasks(request):    
     user_projects = Project.objects.filter(user=request.user).prefetch_related('tasks')
+    for project in user_projects:
+        for task in project.tasks.all():
+            task.start_date = project.start_date - timedelta(days=task.days_prior)
 
     return render(request, 'user_projects_and_tasks.html', {'user_projects': user_projects})
+
+@login_required
+def toggle_task_completion(request, task_id):
+    task = get_object_or_404(Task, id=task_id, project__user=request.user)
+    task.is_actionable = not task.is_actionable
+    task.save()
+    return redirect('list_user_projects_and_tasks')
+
+# added for the template
+@login_required
+def create_template_from_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id, user=request.user)
+    if request.method == 'POST':
+        # Create a new ProjectTemplate
+        project_template = ProjectTemplate.objects.create(
+            title=project.title + " Template",
+            user=request.user,
+            duration=project.end_date - project.start_date
+        )
+        # Copy tasks to TaskTemplate
+        for task in project.tasks.all():
+            TaskTemplate.objects.create(
+                template=project_template,
+                name=task.name,
+                days_prior=task.days_prior,
+                duration=task.duration
+            )
+        return redirect('list_templates')  # Redirect to a page where user can view all their templates
+
+    return render(request, 'create_template_from_project.html', {'project': project})
+
     
 
 # def add_task(request):
@@ -119,38 +215,114 @@ def list_user_projects_and_tasks(request):
 @login_required
 def add_task(request):
     form = TaskForm(request.POST or None, user=request.user)
-    if request.method == 'POST' and form.is_valid():
-        project = form.cleaned_data["project"]
-        name = form.cleaned_data["name"]
-        duration = form.cleaned_data["duration"]
-        is_actionable = form.cleaned_data["is_actionable"]
-        email_notification = form.cleaned_data["email_notification"]
+    if request.method == 'POST':
+        if form.is_valid():
+            project = form.cleaned_data["project"]
+            name = form.cleaned_data["name"]
+            days_prior = form.cleaned_data["days_prior"]
+            duration = form.cleaned_data["duration"]
+            is_actionable = form.cleaned_data["is_actionable"]
+            email_notification = form.cleaned_data["email_notification"]
 
-        Task.objects.get_or_create(
-            project=project,
-            name=name,
-            duration=duration,
-            is_actionable=is_actionable,
-            email_notification=email_notification,
-        )
-        if 'save_add_another' in request.POST:
+            Task.objects.get_or_create(
+                project=project,
+                name=name,
+                days_prior=days_prior,
+                duration=duration,
+                is_actionable=is_actionable,
+                email_notification=email_notification,
+            )
+            if request.POST.get('submit') == 'save_add_another':
                 return redirect('add_task')  # Redirects to the same page for a new form
-        elif 'save_continue' in request.POST:
-            return HttpResponseRedirect(reverse("calendarapp:calendar"))
-            # return redirect('edit_task_url_name', pk=task.pk)  # Redirect to the edit page of the newly created task
+            elif request.POST.get('submit') == 'save_continue':
+                return HttpResponseRedirect(reverse("calendarapp:calendar"))
+            # if 'save_add_another' in request.POST:
+            #         return redirect('add_task')  # Redirects to the same page for a new form
+            # elif 'save_continue' in request.POST:
+            #     return HttpResponseRedirect(reverse("calendarapp:calendar"))
+                # return redirect('edit_task_url_name', pk=task.pk)  # Redirect to the edit page of the newly created task
+            else:
+                # return redirect('task_list_url_name')
+                return HttpResponseRedirect(reverse("calendarapp:calendar"))
         else:
-            # return redirect('task_list_url_name')
-            return HttpResponseRedirect(reverse("calendarapp:calendar"))
+            print(form.errors)
 
         return HttpResponseRedirect(reverse("calendarapp:calendar"))  
     return render(request, "add_task.html", {"form": form})
 
+@login_required
+def edit_task(request, task_id):
+    task = get_object_or_404(Task, id=task_id, project__user=request.user)
+    if request.method == 'POST':
+        form = TaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect('list_user_projects_and_tasks')
+    else:
+        form = TaskForm(instance=task)
+    return render(request, 'edit_task.html', {'form': form, 'task': task})
+
+@login_required
+def delete_task(request, task_id):
+    task = get_object_or_404(Task, id=task_id, project__user=request.user)
+    if request.method == 'POST':
+        task.delete()
+        return redirect('list_user_projects_and_tasks')
+    return render(request, 'delete_task.html', {'task': task})
 
 
 
+# To display project/task on calendar
+@login_required
+def calendar_view(request):
+    projects = Project.objects.filter(user=request.user).prefetch_related('tasks')
+    events = []
 
-
+    for project in projects:        
+        events.append({
+            "title": project.title,
+            "start": project.start_date.strftime("%Y-%m-%d"),
+            "allDay": True
+        })
         
+        for task in project.tasks.all():
+            task_date = project.start_date - timedelta(days=task.days_prior)
+            events.append({
+                "title": task.name,
+                "start": task_date.strftime("%Y-%m-%d"),
+                "allDay": True
+            })
+    
+    events_json = json.dumps(events)
+    
+    return render(request, 'calendar.html', {'events_json': events_json})
+    # context = {
+    #     "events": json.dumps(events)  
+    # }
+
+    # return render(request, 'calendar.html', context)
+
+# mod for the template
+# def add_project(request):
+#     form = ProjectForm(request.POST or None, user=request.user)
+#     if request.method == "POST" and form.is_valid():
+#         project = form.save(commit=False)
+#         project.user = request.user
+#         project.save()
+#         template = form.cleaned_data.get('template')
+#         if template:
+#             # Copy tasks from the template
+#             for task_template in template.task_templates.all():
+#                 Task.objects.create(
+#                     project=project,
+#                     name=task_template.name,
+#                     days_prior=task_template.days_prior,
+#                     duration=task_template.duration
+#                 )
+#         return redirect('project_detail', pk=project.pk)
+
+#     return render(request, "add_project.html", {"form": form})
+ 
 
 
 # def add_project(request):
@@ -270,44 +442,5 @@ def next_day(request, event_id):
         return JsonResponse({'message': 'Sucess!'})
     else:
         return JsonResponse({'message': 'Error!'}, status=400)
+    
 
-
-# class ProjectCreateView(CreateView):
-#     model = Project
-#     form_class = ProjectForm
-#     template_name = 'create_new_project.html'
-#     success_url = reverse_lazy('calendar')
-
-#     def get_context_data(self, **kwargs):
-#         context = super(ProjectCreateView, self).get_context_data(**kwargs)
-#         if self.request.POST:
-#             context['task_formset'] = TaskFormSet(self.request.POST)
-#         else:
-#             context['task_formset'] = TaskFormSet()
-#         return context
-
-#     def form_valid(self, form):
-#         context = self.get_context_data()
-#         task_formset = context['task_formset']
-#         if task_formset.is_valid():
-#             self.object = form.save(commit=False)
-#             self.object.user = self.request.user
-#             self.object.save()
-#             task_formset.instance = self.object
-#             tasks = task_formset.save(commit=False)
-            
-#             # Logic to handle email notifications...
-            
-#             for task in tasks:
-#                 task.save()
-            
-#             # Add logic here if you need to perform additional steps after saving the project
-#             return HttpResponseRedirect(self.get_success_url())
-#         else:
-#             return super(ProjectCreateView, self).form_invalid(form)
-
-#     def get_success_url(self):
-#         # Here you can add logic to determine the success URL dynamically
-#         return reverse_lazy('project_detail', kwargs={'pk': self.object.pk})
-
-# TaskFormSet = inlineformset_factory(Project, Task, form=TaskForm, extra=1, can_delete=True)

@@ -46,11 +46,11 @@ class EventMemberAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ["id", "title", "user"]
+    list_display = ["id", "title","start_date", "user"]
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "project", "duration"]
+    list_display = ["id", "name", "project", "days_prior", "duration"]
 
 #     def formatted_duration(self, obj):
 #         # Convert the duration to a string, assuming it's stored as a timedelta object
