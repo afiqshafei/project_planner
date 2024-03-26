@@ -52,23 +52,23 @@
             </div>
 
             <!-- Modal For New Project button-->
-<!-- <div class="modal fade" id="newProjectModal" tabindex="-1" aria-labelledby="newProjectModalLabel" aria-hidden="true">
+<div class="modal fade" id="newProjectModal" tabindex="-1" aria-labelledby="newProjectModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
       <div class="modal-content">
         <div class="modal-header bg-primary">       
             <h5 class="modal-title text-white" id="newProjectModalLabel">New Project</h5>           
           <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form id="newProjectForm" method="post" action="{% url 'add_project' %}"> -->
+        <form id="newProjectForm" method="post" action="{% url 'add_project' %}">
           <!-- <form method="post"> -->
-          <!-- <div class="modal-body">  -->
+          <div class="modal-body"> 
             <!-- Project Name -->
-            <!-- <div class="mb-3">
+            <div class="mb-3">
               <label for="projectName" class="form-label">Project Name</label>              
-              {% csrf_token %} -->
+              {% csrf_token %}
               <!-- <input type="text" class="form-control" id="projectName" name="project_name" required> -->
-              <!-- {{ form.title }}               -->
-            <!-- </div>           
+              {{ form.title }}              
+            </div>           
             <div class="mb-3">
                 <label for="startDate" class="form-label">Project's Date</label>
                 {{ form.start_date }}
@@ -81,97 +81,7 @@
         </form>
       </div>
     </div>
-  </div>  -->
-
-  <div class="modal fade" id="newProjectModal" tabindex="-1" aria-labelledby="newProjectModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <!-- Tab Navigation -->
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">New Project</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="template-tab" data-bs-toggle="tab" data-bs-target="#template" type="button" role="tab" aria-controls="template" aria-selected="false">Use Template</button>
-                </li>
-            </ul>
-            <!-- Tab Panes -->
-            <div class="tab-content" id="myTabContent">
-                <!-- New Project Tab Pane -->
-                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                    <!-- Existing form for creating a new project -->
-                    <!-- <form> -->
-                        <!-- Form fields for creating a new project -->
-                        <!-- ... -->
-                    <!-- </form> -->
-                    <form id="newProjectForm" method="post" action="{% url 'add_project' %}"> 
-                      <form method="post">
-                      <div class="modal-body"> 
-                        <!-- Project Name -->
-                        <div class="mb-3">
-                          <label for="projectName" class="form-label">Project Name</label>              
-                          {% csrf_token %}
-                          <!-- <input type="text" class="form-control" id="projectName" name="project_name" required> -->
-                          {{ form.title }}              
-                        </div>           
-                        <div class="mb-3">
-                            <label for="startDate" class="form-label">Project's Date</label>
-                            {{ form.start_date }}
-                            {% csrf_token %}
-                            <input type="date" class="form-control" id="startDate" name="start_date" required>
-                          </div>  
-                          <!-- For template         -->
-                          <div class="mb-3 form-check">
-                            {{ form.save_as_template }} 
-                            <label for="saveAsTemplate" class="form-check-label">
-                                                           
-                              Save as template
-                            </label>
-                          </div>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>            
-                        <button type="submit" class="btn btn-primary">Save Project</button>
-                      </div>
-                      
-                    </form>                    
-                </div>
-                <!-- Template Tab Pane -->
-                <div class="tab-pane fade" id="template" role="tabpanel" aria-labelledby="template-tab">
-                    <form method="post" action="{% url 'create_project_from_template' %}">
-                      <div class="modal-body">
-                        {% csrf_token %}
-                        <!-- Select for choosing the template -->
-                        <div class="mb-3">
-                            <label for="projectTemplate" class="form-label">Template</label>
-                            <select class="form-select" id="projectTemplate" name="template_id">
-                                <!-- Options should be populated from the database -->
-                                {% for template in project_templates %}
-                                <option value="{{ template.id }}">{{ template.title }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <!-- Input for the new project name -->
-                        <div class="mb-3">
-                            <label for="newProjectName" class="form-label">Project Name</label>
-                            <input type="text" class="form-control" id="newProjectName" name="project_name" required>
-                        </div>
-                        <!-- Input for the project start date -->
-                        <div class="mb-3">
-                            <label for="newProjectDate" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="newProjectDate" name="start_date" required>
-                        </div>
-                        <!-- Modal footer with actions -->
-                        <div class="modal-footer">
-                            <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Create from Template</button>
-                        </div>
-                      </div>  
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+  </div> 
 
             <div class="modal fade show" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
@@ -257,7 +167,6 @@
 {% block extrascripts %}
 <script src="{% static 'calendar/main.js' %}"></script>
 <script>
-  // var events_json = {{ events_json|safe }};
   function converterDataParaDjangoFormat(data) {
       const dataJS = new Date(data);
       const ano = dataJS.getFullYear();
@@ -332,9 +241,8 @@
           modal.style.display = 'block';
         },
         editable: true,
-        dayMaxEvents: true,   
-        events: {{ events|safe }},      
-        // events: events_json,
+        dayMaxEvents: true, 
+        events: {{ events|safe }},
        
       });
 
@@ -459,17 +367,5 @@ document.getElementById('modalClose0').addEventListener('click', function() {
 });
 
 </script>
-<!-- Bootstrap 5.x Script for handling tabs -->
-<script>
-  var triggerTabList = [].slice.call(document.querySelectorAll('#myTab button'))
-  triggerTabList.forEach(function (triggerEl) {
-    var tabTrigger = new bootstrap.Tab(triggerEl)
-  
-    triggerEl.addEventListener('click', function (event) {
-      event.preventDefault()
-      tabTrigger.show()
-    })
-  })
-  </script>
 {% endblock extrascripts %}
 

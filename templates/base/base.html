@@ -169,15 +169,19 @@
                                                                             <!-- app-menu__icon fa fa-th-list -->
                     <a class="app-menu__item" href="#" data-toggle="treeview"><i class="app-menu__icon fa fa-th-list"></i><span class="app-menu__label">Projects / Tasks</span><i class="treeview-indicator fa fa-angle-right"></i></a>
                     <ul class="treeview-menu">
-                        <li>
+                        <!-- <li>
                             <a class="treeview-item" href="{% url 'calendarapp:running_events' %}"><i class="icon fa fa-circle-o"></i> Running</a>
                         </li>
                         <li>
                             <a class="treeview-item" href="{% url 'calendarapp:running_events' %}"><i class="icon fa fa-circle-o"></i> Upcoming</a>
-                        </li>
-                        <li>
+                        </li> -->
+                        <!-- <li>
                             <a class="treeview-item" href="{% url 'calendarapp:all_events' %}"><i class="icon fa fa-circle-o"></i> All</a>
                         </li>
+                        <li> -->
+                            <a class="treeview-item" href="{% url 'list_user_projects_and_tasks' %}"><i class="icon fa fa-circle-o"></i> All</a>
+                        </li>
+                        
                     </ul>
                 </li>
                 <li>
@@ -199,5 +203,6 @@
         {% endblock extrascripts %}
         <!-- Just added for the modal -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        
     </body>
 </html>
