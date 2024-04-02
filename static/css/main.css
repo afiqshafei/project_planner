@@ -4884,6 +4884,25 @@ input[type="button"].btn-block {
   color: #FFF;
 }
 
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.project-actions {
+  display: none;
+}
+
+.project-header:hover .project-actions {
+  display: block;
+}
+
+.project-title {
+  cursor: pointer; /* Indicates that something happens when you hover over the title */
+}
+
+
 .card {
   position: relative;
   display: -webkit-box;
@@ -13265,11 +13284,7 @@ body.stop-scrolling {
   height: 500px;
 }
 
-/*!
- * FullCalendar v2.5.0 Stylesheet
- * Docs & License: http://fullcalendar.io/
- * (c) 2015 Adam Shaw
- */
+
 .fc {
   direction: ltr;
   text-align: left;
@@ -13473,10 +13488,7 @@ NOTE: use percentage font sizes or else old IE chokes
   vertical-align: middle;
 }
 
-/*
-  button states
-  borrowed from twitter bootstrap (http://twitter.github.com/bootstrap/)
-*/
+
 .fc-state-default {
   background-color: #f5f5f5;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#e6e6e6));
@@ -16728,3 +16740,10 @@ be a descendant of the grid when it is being dragged.
 .user .user-settings label {
   color: #666;
 }
+
+.task-actions {
+  display: flex;
+  justify-content: start;
+  gap: 10px; /* Adjust gap as needed */
+}
+
