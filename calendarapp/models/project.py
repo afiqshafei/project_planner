@@ -13,7 +13,7 @@ from accounts.models import User
 class ProjectTemplate(models.Model):
     title = models.CharField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    duration = models.DurationField()
+    duration = models.DurationField(null=True, blank=True)
 
     def __str__(self):
         return self.title

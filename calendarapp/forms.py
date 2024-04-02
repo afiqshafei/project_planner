@@ -2,7 +2,7 @@ from django.forms import ModelForm, DateInput
 from calendarapp.models import Event, EventMember
 from django import forms
 from datetime import timedelta
-from calendarapp.models.project import Project, Task
+from calendarapp.models.project import Project, Task, ProjectTemplate
 
 
 
@@ -42,25 +42,17 @@ class EventForm(ModelForm):
 class AddMemberForm(forms.ModelForm):
     class Meta:
         model = EventMember
-        fields = ["user"]
-        
+        fields = ["user"]       
 
-# class ProjectForm(forms.ModelForm):
-#     class Meta:
-#         model = Project
-#         fields = ['title', 'start_date', 'end_date']
+
         
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['title', 'start_date', 'template', 'save_as_template']
-        # fields = ['title', 'start_date']       
-        # newly added
+        fields = ['title', 'start_date', 'template', 'save_as_template']        
         widgets = {
             "title": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Project Name"}
-            # "name": forms.TextInput(
-            #     attrs={"class": "form-control", "placeholder": "Project Name"}
+                attrs={"class": "form-control", "placeholder": "Project Name"}            
             ),
             
              "start_date": DateInput(
@@ -74,16 +66,13 @@ class ProjectForm(forms.ModelForm):
             "save_as_template": forms.CheckboxInput(
                 attrs={"class": 'form-check-input'}
             ),
-
-            # "start_date": DateInput(
-            #     attrs={"type": "datetime-local", "class": "form-control"},
-            #     format="%Y-%m-%dT%H:%M",
-            # ),
-            # "end_time": DateInput(
-            #     attrs={"type": "datetime-local", "class": "form-control"},
-            #     format="%Y-%m-%dT%H:%M",
-            # ),
+          
         }
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(ProjectForm, self).__init__(*args, **kwargs)
+        if user is not None:
+            self.fields['template'].queryset = ProjectTemplate.objects.filter(user=user)
 
 class TaskForm(forms.ModelForm):
     # duration_in_days = forms.IntegerField(
@@ -125,18 +114,6 @@ class TaskForm(forms.ModelForm):
         if user is not None:
             self.fields['project'].queryset = Project.objects.filter(user=user)
 
-    # def clean_duration_in_days(self):
-    #     duration_in_days = self.cleaned_data.get('duration_in_days')
-    #     if duration_in_days is not None:
-    #         return timedelta(days=duration_in_days)
-    #     return None
-
-    # def save(self, commit=True):
-    #     instance = super().save(commit=False)
-    #     # Override the duration with the converted timedelta
-    #     instance.duration = self.cleaned_data['duration_in_days', None]
-    #     if commit:
-    #         instance.save()
-    #     return instance
+ 
 
     

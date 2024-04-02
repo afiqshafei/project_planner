@@ -1,7 +1,7 @@
 from django.contrib import admin
 from calendarapp import models
 from .models import project
-from calendarapp.models.project import Project, Task
+from calendarapp.models.project import Project, Task, ProjectTemplate
 
 
 @admin.register(models.Event)
@@ -60,4 +60,6 @@ class TaskAdmin(admin.ModelAdmin):
 #     formatted_duration.admin_order_field = 'duration'  # Allows sorting by the duration field
 #     formatted_duration.short_description = 'Duration (days)'  # Column header for the admin interface
     
-     
+@admin.register(ProjectTemplate)
+class ProjectTemplateAdmin(admin.ModelAdmin):
+    list_display = ["id", "title", "user"]

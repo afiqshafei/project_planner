@@ -6,6 +6,7 @@ app_name = "calendarapp"
 
 
 urlpatterns = [
+    path("", views.CalendarViewNew.as_view(), name="calendar"),
     path("calendar/", views.CalendarViewNew.as_view(), name="calendar"),
     # path("calendars/", views.CalendarView.as_view(), name="calendars"),     delete later
     path('delete_event/<int:event_id>/', views.delete_event, name='delete_event'),
