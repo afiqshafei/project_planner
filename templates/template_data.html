@@ -1,0 +1,12 @@
+{% if project_templates %}
+  <select class="form-control" id="projectTemplate" name="template_id" required>
+    <option value="" disabled selected>-- Select a template --</option>
+    {% for template in project_templates %}
+      <option value="{{ template.id }}">{{ template.title }}</option>
+    {% endfor %}
+  </select>
+{% else %}
+    <p class="text-muted">No templates available.</p>    
+    <option value="" disabled>No templates available.</option>
+{% endif %}
+

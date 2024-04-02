@@ -1,10 +1,22 @@
 {% extends 'base/base.html' %}
+
+{% block breadcrumb %}
+    <h2>Delete Task: </h2>
+    <!-- <p>Are you sure you want to delete this task?</p> -->
+{% endblock breadcrumb %}
+
+
 {% block content %}
-<h2>Delete Task: {{ task.name }}</h2>
-<p>Are you sure you want to delete this task?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Delete</button>
-    <a href="{% url 'list_user_projects_and_tasks' %}" class="btn btn-secondary">Cancel</a>
-</form>
+<!-- <h2>Delete Task: {{ task.name }}</h2> -->
+<div class="tile">
+    <div class="project-list">
+        <p>Are you sure you want to delete this task?</p>
+        <p>{{ task.name }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a href="{% url 'list_user_projects_and_tasks' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
 {% endblock %}

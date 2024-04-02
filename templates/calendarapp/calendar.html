@@ -33,7 +33,7 @@
         <div class="tile row">
             <div class="col-md-3">
                 <div id="external-events">
-                    <h4 class="mb-4">Projects</h4>
+                    <h4 class="mb-4">Projects</h4>                    
                     {% for event in events_month %}
                       <div class="fc-event">
                           <h3>{{ event.title }}</h3>
@@ -121,13 +121,13 @@
                             <input type="date" class="form-control" id="startDate" name="start_date" required>
                           </div>  
                           <!-- For template         -->
-                          <div class="mb-3 form-check">
+                          <!-- <div class="mb-3 form-check">
                             {{ form.save_as_template }} 
                             <label for="saveAsTemplate" class="form-check-label">
                                                            
                               Save as template
                             </label>
-                          </div>
+                          </div> -->
                         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>            
                         <button type="submit" class="btn btn-primary">Save Project</button>
                       </div>
@@ -143,10 +143,22 @@
                         <div class="mb-3">
                             <label for="projectTemplate" class="form-label">Template</label>
                             <select class="form-select" id="projectTemplate" name="template_id">
-                                <!-- Options should be populated from the database -->
-                                {% for template in project_templates %}
-                                <option value="{{ template.id }}">{{ template.title }}</option>
-                                {% endfor %}
+                                <!-- Options should be populated from the database -->       
+                                <!-- {% include 'template_data.html' with project_templates=project_templates %}                          -->
+                                <!-- {% for template in project_templates %}                                
+                                <option value="{{ template.id }}">{{ template.title }}</option>                                
+                                {% endfor %}                                 -->
+                                {% if project_templates %}
+                                  <!-- <select class="form-control" id="projectTemplate" name="template_id" required> -->
+                                    <option value="" disabled selected>-- Select a template --</option>
+                                    {% for template in project_templates %}
+                                      <option value="{{ template.id }}">{{ template.title }}</option>
+                                    {% endfor %}
+                                  <!-- </select> -->
+                                {% else %}
+                                    <p class="text-muted">No templates available.</p>    
+                                    <option value="" disabled>No templates available.</option>
+                                {% endif %}
                             </select>
                         </div>
                         <!-- Input for the new project name -->

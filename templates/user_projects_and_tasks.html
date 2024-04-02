@@ -10,35 +10,6 @@
 {% endblock extracss %}
 
 
-
-
-
-<!-- <div class="project-list">
-    {% for project in user_projects %}
-    <div class="project">
-        <h3>{{ project.title }}</h3>
-        <p>Start Date: {{ project.start_date }}</p>
-        <ul class="task-list">
-            {% for task in project.tasks.all %}
-            <li>
-                {{ task.name }} -  Start on {{ task.start_date|date:"Y-m-d" }} - Duration: {{ task.duration }} days
-                <form method="post" action="{% url 'toggle_task_completion' task.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm {% if task.is_actionable %}btn-success{% else %}btn-secondary{% endif %}">
-                        {% if task.is_actionable %}Complete{% else %}Incomplete{% endif %}
-                    </button>
-                </form>
-                <a href="{% url 'edit_task' task.id %}" class="btn btn-sm btn-primary">Edit</a>
-                <a href="{% url 'delete_task' task.id %}" class="btn btn-sm btn-danger">Delete</a>
-            </li>
-            {% endfor %}
-        </ul>
-        <a href="{% url 'add_task' project.id %}" class="btn btn-primary">Add Task</a>
-    </div>
-    {% endfor %}
-</div> -->
-
-
 {% block breadcrumb %}
   <h2>My Projects</h2>
 {% endblock breadcrumb %}
@@ -51,8 +22,27 @@
 <div class="project-list">
     {% for project in user_projects %}
     <div class="project">
-        <h3>{{ project.title }}</h3>
+        <div class="project-header">
+            <h3>{{ project.title }}</h3>
+            <div class="project-actions">
+                <!-- <a href="{% url 'edit_project' project.id %}" class="btn btn-primary">Edit</a> -->
+                <form action="{% url 'delete_project' project.id %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>        
         <p>Start Date: {{ project.start_date }}</p>
+        <!-- Just add for delete button  -->
+        <!-- <a href="{% url 'edit_project' project.id %}" class="btn btn-primary">Edit</a>
+        <form action="{% url 'delete_project' project.id %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form> -->
+        <!-- <hr> -->
+        {% for template in project_template %}
+        <p>{{template.title }}</p>
+        {% endfor %}
         <table id="taskTable_{{ forloop.counter }}" class="display" style="width:100%">
             <thead>
                 <tr>
@@ -83,12 +73,23 @@
                         <a href="{% url 'delete_task' task.id %}" class="btn btn-sm btn-danger">Delete</a>
                     </td>
                 </tr>                
-                {% endfor %}
+                {% endfor %}                  
             </tbody>
         </table>
-        <a href="{% url 'add_task' %}" class="btn btn-primary">Add Task</a>
-        <hr>
-    </div>
+        <div class="task-actions">
+            <a href="{% url 'add_task' %}" class="btn btn-primary">Add Task</a>
+            <form action="{% url 'save_project_as_template' project.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Save as Template" class="btn btn-primary">
+            </form>            
+        <!-- <hr> -->
+        </div>
+    </div>  
+    <hr>    
+    {% empty %}
+        <div class="no-projects-message">
+            <p>No project found.</p>
+        </div>
     {% endfor %}
 </div>
 </div>

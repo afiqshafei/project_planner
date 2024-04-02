@@ -1,0 +1,17 @@
+{% extends 'base/base.html' %}
+
+
+{% block breadcrumb %}
+  <h2>My Projects</h2>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="container">
+  <h2>Are you sure you want to delete "{{ project.title }}"?</h2>
+  <form action="{% url 'delete_project' project.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, delete this project</button>
+    <a href="{% url 'list_user_projects_and_tasks' %}" class="btn btn-secondary">No, take me back</a>
+  </form>
+</div>
+{% endblock content %}
